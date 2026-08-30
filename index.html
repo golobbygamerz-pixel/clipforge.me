@@ -864,4 +864,350 @@
     const successModal = document.getElementById('successModal');
     const continueShopping = document.getElementById('continueShopping');
     const ordersList = document.getElementById('ordersList');
-    const viewOrdersBtn = document.getElementById('view
+    const viewOrdersBtn = document.getElementById('viewOrdersBtn');
+
+    // ---------- RENDER PRODUCTS ----------
+    function renderProducts() {
+        productsGrid.innerHTML = '';
+        products.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            const stars = '⭐'.repeat(Math.floor(p.rating)) + (p.rating % 1 >= 0.5 ? '⭐' : '');
+            const discount = Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100);
+            card.innerHTML = `
+                <div class="image">
+                    ${p.emoji}
+                    <div class="badge-sale">${discount}% OFF</div>
+                    ${p.new ? '<div class="badge-new">NEW</div>' : ''}
+                </div>
+                <div class="info">
+                    <div class="brand">${p.brand}</div>
+                    <div class="name">${p.name}</div>
+                    <div class="category">${p.category}</div>
+                    <div class="rating">${stars} <span>(${p.reviews})</span></div>
+                    <div class="price-row">
+                        <span class="current">$${p.price.toFixed(2)}</span>
+                        <span class="old">$${p.oldPrice.toFixed(2)}</span>
+                        <span class="discount">-${discount}%</span>
+                    </div>
+                    <button class="btn-add" onclick="addToCart(${p.id})">Add to Cart</button>
+                </div>
+            `;
+            productsGrid.appendChild(card);
+        });
+    }
+
+    // ---------- CART FUNCTIONS ----------
+    function addToCart(productId) {
+        const product = products.find(p => p.id === productId);
+        if (!product) return;
+        const existing = cart.find(item => item.id === productId);
+        if (existing) {
+            existing.qty += 1;
+        } else {
+            cart.push({ ...product, qty: 1 });
+        }
+        updateCart();
+        // Animation feedback
+        const btn = document.querySelector(`.product-card .btn-add[onclick*="${productId}"]`);
+        if (btn) {
+            btn.textContent = '✅ Added!';
+            btn.style.background = '#00c853';
+            btn.style.color = '#fff';
+            setTimeout(() => {
+                btn.textContent = 'Add to Cart';
+                btn.style.background = '';
+                btn.style.color = '';
+            }, 1200);
+        }
+    }
+
+    function removeFromCart(productId) {
+        const idx = cart.findIndex(item => item.id === productId);
+        if (idx > -1) {
+            cart.splice(idx, 1);
+            updateCart();
+        }
+    }
+
+    function updateQty(productId, delta) {
+        const item = cart.find(i => i.id === productId);
+        if (!item) return;
+        item.qty += delta;
+        if (item.qty <= 0) {
+            removeFromCart(productId);
+        } else {
+            updateCart();
+        }
+    }
+
+    function updateCart() {
+        const totalItems = cart.reduce((sum, i) => sum + i.qty, 0);
+        cartCount.textContent = totalItems;
+
+        cartItems.innerHTML = '';
+        if (cart.length === 0) {
+            cartItems.innerHTML = '<p style="color:#8888aa; text-align:center; padding:20px 0;">Your cart is empty</p>';
+        } else {
+            cart.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    <div class="item-icon">${item.emoji}</div>
+                    <div class="item-info">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-price">$${(item.price * item.qty).toFixed(2)}</div>
+                    </div>
+                    <div class="item-qty">
+                        <button onclick="updateQty(${item.id}, -1)">−</button>
+                        <span class="qty-num">${item.qty}</span>
+                        <button onclick="updateQty(${item.id}, 1)">+</button>
+                        <button onclick="removeFromCart(${item.id})" style="background:none; border:none; color:#ff4757; font-size:18px; cursor:pointer; padding:0 4px;">✕</button>
+                    </div>
+                `;
+                cartItems.appendChild(div);
+            });
+        }
+
+        const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+        const shipping = subtotal > 0 && subtotal < 100 ? 9.99 : 0;
+        const total = subtotal + shipping;
+        subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
+        shippingEl.textContent = shipping > 0 ? `$${shipping.toFixed(2)}` : 'Free';
+        totalEl.textContent = `$${total.toFixed(2)}`;
+        checkoutBtn.disabled = cart.length === 0;
+    }
+
+    // ---------- CART UI ----------
+    cartIcon.addEventListener('click', () => {
+        cartSidebar.classList.add('open');
+        cartOverlay.classList.add('show');
+    });
+
+    closeCart.addEventListener('click', closeCartSidebar);
+    cartOverlay.addEventListener('click', closeCartSidebar);
+
+    function closeCartSidebar() {
+        cartSidebar.classList.remove('open');
+        cartOverlay.classList.remove('show');
+    }
+
+    // ---------- CHECKOUT ----------
+    checkoutBtn.addEventListener('click', () => {
+        if (cart.length === 0) return;
+        closeCartSidebar();
+        const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+        const shipping = subtotal > 0 && subtotal < 100 ? 9.99 : 0;
+        const total = subtotal + shipping;
+        document.getElementById('summaryItems').textContent = cart.reduce((s, i) => s + i.qty, 0);
+        document.getElementById('summarySubtotal').textContent = `$${subtotal.toFixed(2)}`;
+        document.getElementById('summaryShipping').textContent = shipping > 0 ? `$${shipping.toFixed(2)}` : 'Free';
+        document.getElementById('summaryTotal').textContent = `$${total.toFixed(2)}`;
+        checkoutModal.classList.add('show');
+    });
+
+    cancelCheckout.addEventListener('click', () => {
+        checkoutModal.classList.remove('show');
+    });
+
+    // ---------- PLACE ORDER ----------
+    document.getElementById('checkoutForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById('fullName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const address = document.getElementById('address').value.trim();
+
+        if (!name || !email || !phone || !address) {
+            alert('Please fill in all fields');
+            return;
+        }
+
+        const orderId = `ORD-${String(++orderCounter).padStart(6, '0')}`;
+        const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+        const shipping = subtotal > 0 && subtotal < 100 ? 9.99 : 0;
+        const total = subtotal + shipping;
+
+        const order = {
+            id: orderId,
+            date: new Date().toLocaleDateString(),
+            items: cart.map(i => ({ name: i.name, qty: i.qty, price: i.price, emoji: i.emoji })),
+            subtotal: subtotal,
+            shipping: shipping,
+            total: total,
+            customer: { name, email, phone, address },
+            status: 'pending'
+        };
+
+        orders.push(order);
+        renderOrders();
+
+        // ===== SEND EMAIL =====
+        sendOrderEmail(order);
+
+        // Show success
+        document.getElementById('orderId').textContent = `#${orderId}`;
+        checkoutModal.classList.remove('show');
+        successModal.classList.add('show');
+
+        // Clear cart
+        cart = [];
+        updateCart();
+
+        // Reset form
+        document.getElementById('checkoutForm').reset();
+    });
+
+    // ---------- SEND EMAIL ----------
+    function sendOrderEmail(order) {
+        // Build email content
+        const itemsList = order.items.map(i => 
+            `${i.emoji} ${i.name} x${i.qty} = $${(i.price * i.qty).toFixed(2)}`
+        ).join('\n');
+
+        const emailBody = `
+    🛍️ NEW ORDER RECEIVED!
+    ════════════════════════════════
+
+    📋 ORDER DETAILS
+    ────────────────────────────
+    Order ID: ${order.id}
+    Date: ${order.date}
+    Status: Cash on Delivery
+
+    📦 ITEMS
+    ────────────────────────────
+    ${itemsList}
+
+    💰 ORDER SUMMARY
+    ────────────────────────────
+    Subtotal: $${order.subtotal.toFixed(2)}
+    Shipping: ${order.shipping > 0 ? '$' + order.shipping.toFixed(2) : 'Free'}
+    Total: $${order.total.toFixed(2)}
+
+    👤 CUSTOMER DETAILS
+    ────────────────────────────
+    Name: ${order.customer.name}
+    Email: ${order.customer.email}
+    Phone: ${order.customer.phone}
+    Address: ${order.customer.address}
+
+    📝 NOTES
+    ────────────────────────────
+    Payment Method: Cash on Delivery
+    Delivery: Standard (3-5 business days)
+
+    ════════════════════════════════
+    🚀 ShopForge Automated Order System
+    `;
+
+        // Open email client with pre-filled details
+        const subject = encodeURIComponent(`🛍️ New Order ${order.id} - Cash on Delivery`);
+        const body = encodeURIComponent(emailBody);
+        window.location.href = `mailto:your-email@example.com?subject=${subject}&body=${body}`;
+
+        // Also show in console for testing
+        console.log('📧 Order Email Sent:');
+        console.log(emailBody);
+
+        // Show notification
+        showNotification('📧 Order details sent to your email!');
+    }
+
+    // ---------- NOTIFICATION ----------
+    function showNotification(message) {
+        const div = document.createElement('div');
+        div.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a2e;
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 16px;
+            font-weight: 600;
+            z-index: 9999;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s ease;
+            max-width: 90%;
+            text-align: center;
+            border-left: 4px solid #c9a84c;
+        `;
+        div.textContent = message;
+        document.body.appendChild(div);
+        setTimeout(() => {
+            div.style.opacity = '0';
+            div.style.transition = 'opacity 0.5s';
+            setTimeout(() => div.remove(), 500);
+        }, 4000);
+    }
+
+    // ---------- RENDER ORDERS ----------
+    function renderOrders() {
+        ordersList.innerHTML = '';
+        if (orders.length === 0) {
+            ordersList.innerHTML = '<p style="color:#8888aa; text-align:center; padding:20px 0;">No orders yet</p>';
+            return;
+        }
+        orders.slice().reverse().forEach(order => {
+            const div = document.createElement('div');
+            div.className = 'order-item';
+            const statusMap = {
+                pending: '🟡 Pending',
+                confirmed: '🟢 Confirmed',
+                shipped: '🔵 Shipped',
+                delivered: '🟣 Delivered'
+            };
+            const statusClass = order.status || 'pending';
+            div.innerHTML = `
+                <div>
+                    <div class="order-id">#${order.id}</div>
+                    <div class="order-details">
+                        ${order.items.map(i => `${i.emoji} ${i.name} x${i.qty}`).join(', ')}
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                    <span class="order-total">$${order.total.toFixed(2)}</span>
+                    <span class="order-status ${statusClass}">${statusMap[statusClass] || '🟡 Pending'}</span>
+                </div>
+            `;
+            ordersList.appendChild(div);
+        });
+    }
+
+    // ---------- VIEW ORDERS ----------
+    viewOrdersBtn.addEventListener('click', () => {
+        document.getElementById('ordersSection').scrollIntoView({ behavior: 'smooth' });
+        // Highlight orders
+        document.getElementById('ordersSection').style.transition = 'all 0.5s';
+        document.getElementById('ordersSection').style.border = '2px solid #c9a84c';
+        setTimeout(() => {
+            document.getElementById('ordersSection').style.border = '';
+        }, 2000);
+    });
+
+    // ---------- SUCCESS ----------
+    continueShopping.addEventListener('click', () => {
+        successModal.classList.remove('show');
+    });
+
+    // ---------- INIT ----------
+    renderProducts();
+    renderOrders();
+
+    // ---------- KEYBOARD SHORTCUT ----------
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeCartSidebar();
+            checkoutModal.classList.remove('show');
+            successModal.classList.remove('show');
+        }
+    });
+
+    console.log('🛍️ ShopForge Pro loaded successfully!');
+    console.log('📧 Orders will be sent to your email automatically!');
+</script>
+</body>
+</html>
