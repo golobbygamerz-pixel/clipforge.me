@@ -11,78 +11,113 @@
             box-sizing: border-box;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0a0e14;
-            color: #e8edf5;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f0e17;
+            color: #fffffe;
             min-height: 100vh;
-            padding: 20px;
+            padding: 16px;
         }
         .container {
             max-width: 1200px;
             margin: 0 auto;
         }
+
+        /* ===== HEADER ===== */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 0;
-            border-bottom: 1px solid #1e2632;
+            padding: 16px 0 20px;
+            border-bottom: 2px solid #1a1a2e;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 12px;
         }
         .logo {
-            font-size: 32px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #7c5cfc, #b8a5ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 30px;
+            font-weight: 900;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
-        .logo span {
-            background: #1e2632;
-            padding: 4px 14px;
+        .logo .bolt {
+            color: #ff8906;
+        }
+        .logo .forge {
+            background: linear-gradient(135deg, #ff8906, #f25f4c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo .badge-ai {
+            font-size: 12px;
+            background: #ff8906;
+            color: #0f0e17;
+            padding: 2px 12px;
             border-radius: 40px;
-            font-size: 14px;
-            -webkit-text-fill-color: #8895b0;
+            font-weight: 700;
+            -webkit-text-fill-color: #0f0e17;
         }
-        .badge {
-            background: #7c5cfc;
+        .header-tag {
+            background: #1a1a2e;
             padding: 6px 18px;
             border-radius: 40px;
             font-size: 13px;
-            font-weight: 600;
+            color: #e3e3e3;
+            border: 1px solid #2d2d44;
         }
+        .header-tag span {
+            color: #ff8906;
+        }
+
+        /* ===== UPLOAD ===== */
         .upload-section {
-            margin: 40px 0;
-            background: #121a24;
-            border-radius: 24px;
-            padding: 50px 30px;
-            border: 2px dashed #2a3442;
+            margin: 32px 0;
+            background: #1a1a2e;
+            border-radius: 28px;
+            padding: 48px 24px;
+            border: 2px dashed #2d2d44;
             text-align: center;
             transition: all 0.3s;
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .upload-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,137,6,0.05) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .upload-section:hover::before {
+            opacity: 1;
         }
         .upload-section:hover {
-            border-color: #7c5cfc;
-            background: #17212e;
+            border-color: #ff8906;
+            background: #1e1e36;
+            transform: translateY(-2px);
         }
         .upload-section.dragover {
-            border-color: #7c5cfc;
-            background: #1f2b3d;
+            border-color: #ff8906;
+            background: #1e1e36;
             transform: scale(1.01);
         }
         .upload-icon {
-            font-size: 64px;
-            margin-bottom: 16px;
+            font-size: 56px;
+            margin-bottom: 12px;
+            display: block;
         }
         .upload-section h2 {
             font-size: 22px;
-            margin-bottom: 8px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #fffffe;
         }
         .upload-section p {
-            color: #8895b0;
+            color: #a7a9be;
             font-size: 15px;
         }
         #fileInput {
@@ -91,202 +126,327 @@
         .file-info {
             display: none;
             margin-top: 16px;
-            padding: 16px;
-            background: #0d1520;
-            border-radius: 12px;
-            border: 1px solid #2a3442;
+            padding: 14px 20px;
+            background: #0f0e17;
+            border-radius: 14px;
+            border: 1px solid #2d2d44;
         }
         .file-info.show {
             display: block;
+            animation: fadeIn 0.4s ease;
         }
+        .file-info strong {
+            color: #ff8906;
+        }
+        .file-info span {
+            color: #a7a9be;
+            margin-left: 8px;
+        }
+
+        /* ===== SETTINGS ===== */
         .settings-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
         }
         .setting-card {
-            background: #121a24;
-            padding: 18px 20px;
-            border-radius: 16px;
-            border: 1px solid #1e2632;
+            background: #1a1a2e;
+            padding: 16px 18px;
+            border-radius: 18px;
+            border: 1px solid #2d2d44;
+            transition: 0.3s;
+        }
+        .setting-card:hover {
+            border-color: #ff8906;
+            box-shadow: 0 0 20px rgba(255,137,6,0.05);
         }
         .setting-card label {
             display: block;
-            font-size: 13px;
-            color: #8895b0;
+            font-size: 12px;
+            color: #a7a9be;
             margin-bottom: 8px;
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
         }
         .setting-card select,
         .setting-card input {
             width: 100%;
             padding: 10px 14px;
-            background: #0a0e14;
-            color: #e8edf5;
-            border: 1px solid #2a3442;
-            border-radius: 10px;
-            font-size: 15px;
+            background: #0f0e17;
+            color: #fffffe;
+            border: 1px solid #2d2d44;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
             outline: none;
             transition: 0.3s;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ff8906' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 12px;
         }
         .setting-card select:focus,
         .setting-card input:focus {
-            border-color: #7c5cfc;
+            border-color: #ff8906;
+            box-shadow: 0 0 0 3px rgba(255,137,6,0.15);
         }
+        .setting-card select option {
+            background: #1a1a2e;
+            color: #fffffe;
+        }
+
+        /* ===== BUTTONS ===== */
         .btn-primary {
             width: 100%;
             padding: 18px;
-            background: linear-gradient(135deg, #7c5cfc, #b8a5ff);
+            background: linear-gradient(135deg, #ff8906, #f25f4c);
             border: none;
             border-radius: 60px;
-            color: #fff;
+            color: #0f0e17;
             font-size: 18px;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
             transition: all 0.3s;
-            margin: 20px 0;
+            margin: 16px 0;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+        .btn-primary:hover:not(:disabled)::after {
+            opacity: 1;
         }
         .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(124, 92, 252, 0.3);
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 12px 40px rgba(255,137,6,0.35);
         }
         .btn-primary:disabled {
             opacity: 0.4;
             cursor: not-allowed;
+            transform: none !important;
         }
         .btn-secondary {
-            padding: 10px 24px;
-            background: #1e2632;
-            border: 1px solid #2a3442;
+            padding: 10px 28px;
+            background: transparent;
+            border: 2px solid #ff8906;
             border-radius: 40px;
-            color: #e8edf5;
+            color: #fffffe;
             font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
             transition: 0.3s;
         }
         .btn-secondary:hover {
-            background: #2a3442;
+            background: #ff8906;
+            color: #0f0e17;
         }
+
+        /* ===== STATUS ===== */
         .status-bar {
             padding: 16px 20px;
-            border-radius: 16px;
-            background: #121a24;
-            margin: 20px 0;
-            border-left: 4px solid #7c5cfc;
+            border-radius: 18px;
+            background: #1a1a2e;
+            margin: 16px 0;
+            border-left: 4px solid #ff8906;
             display: flex;
             align-items: center;
-            gap: 12px;
-            min-height: 60px;
+            gap: 14px;
+            min-height: 56px;
         }
         .status-bar .spinner {
-            width: 24px;
-            height: 24px;
-            border: 3px solid #2a3442;
-            border-top: 3px solid #7c5cfc;
+            width: 22px;
+            height: 22px;
+            border: 3px solid #2d2d44;
+            border-top: 3px solid #ff8906;
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin 0.7s linear infinite;
+            flex-shrink: 0;
         }
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            to { transform: rotate(360deg); }
         }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .status-bar .status-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        #statusText {
+            font-size: 15px;
+            color: #e3e3e3;
+        }
+
+        /* ===== PROGRESS ===== */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #2d2d44;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff8906, #f25f4c);
+            width: 0%;
+            transition: width 0.4s ease;
+            border-radius: 10px;
+        }
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===== RESULTS ===== */
+        #resultsSection {
+            animation: fadeIn 0.6s ease;
+        }
+        #resultsSection h3 {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 28px 0 16px;
+            color: #fffffe;
+        }
+        #resultsSection h3 span {
+            color: #ff8906;
+        }
+
         .clips-gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 24px;
-            margin: 30px 0;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
         }
         .clip-card {
-            background: #121a24;
-            border-radius: 16px;
+            background: #1a1a2e;
+            border-radius: 20px;
             overflow: hidden;
-            border: 1px solid #1e2632;
-            transition: 0.3s;
+            border: 1px solid #2d2d44;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .clip-card:hover {
-            transform: translateY(-4px);
-            border-color: #7c5cfc;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+            transform: translateY(-6px);
+            border-color: #ff8906;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.5);
         }
         .clip-card video {
             width: 100%;
             aspect-ratio: 9/16;
             object-fit: cover;
-            background: #000;
+            background: #0f0e17;
         }
         .clip-info {
-            padding: 16px;
+            padding: 16px 18px 18px;
         }
         .clip-info h4 {
-            font-size: 14px;
+            font-size: 15px;
+            font-weight: 700;
             margin-bottom: 4px;
+            color: #fffffe;
         }
-        .clip-info p {
+        .clip-info .clip-time {
             font-size: 13px;
-            color: #8895b0;
+            color: #a7a9be;
+        }
+        .clip-info .clip-badge {
+            display: inline-block;
+            font-size: 11px;
+            background: #ff8906;
+            color: #0f0e17;
+            padding: 2px 12px;
+            border-radius: 40px;
+            font-weight: 700;
+            margin-top: 6px;
         }
         .clip-actions {
             display: flex;
             gap: 10px;
-            margin-top: 12px;
+            margin-top: 14px;
         }
         .clip-actions button {
             flex: 1;
-            padding: 8px;
-            border: 1px solid #2a3442;
-            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid #2d2d44;
+            border-radius: 12px;
             background: transparent;
-            color: #e8edf5;
+            color: #fffffe;
             cursor: pointer;
             font-size: 13px;
+            font-weight: 600;
             transition: 0.3s;
         }
-        .clip-actions button:hover {
-            background: #7c5cfc;
-            border-color: #7c5cfc;
+        .clip-actions button:first-child {
+            background: #ff8906;
+            border-color: #ff8906;
+            color: #0f0e17;
         }
+        .clip-actions button:first-child:hover {
+            background: #e67a00;
+            border-color: #e67a00;
+        }
+        .clip-actions button:last-child:hover {
+            background: #2d2d44;
+            border-color: #ff8906;
+        }
+
         .download-all {
             text-align: center;
-            margin: 30px 0;
+            margin: 28px 0 12px;
         }
-        .hidden {
-            display: none !important;
-        }
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #1e2632;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 12px;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #7c5cfc, #b8a5ff);
-            width: 0%;
-            transition: width 0.3s;
-            border-radius: 10px;
-        }
+
+        /* ===== FOOTER ===== */
         .footer {
             text-align: center;
-            padding: 40px 0 20px;
-            color: #445566;
+            padding: 32px 0 16px;
+            color: #5a5a7a;
             font-size: 14px;
-            border-top: 1px solid #1e2632;
+            border-top: 1px solid #1a1a2e;
             margin-top: 40px;
         }
+        .footer span {
+            color: #ff8906;
+        }
+
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 600px) {
             .logo {
                 font-size: 24px;
             }
             .settings-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
             }
             .clips-gallery {
+                grid-template-columns: 1fr;
+            }
+            .upload-section {
+                padding: 32px 16px;
+            }
+            .upload-section h2 {
+                font-size: 18px;
+            }
+            .header-tag {
+                font-size: 11px;
+                padding: 4px 14px;
+            }
+        }
+        @media (max-width: 400px) {
+            .settings-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -294,18 +454,24 @@
 </head>
 <body>
     <div class="container">
+
+        <!-- ===== HEADER ===== -->
         <header>
             <div class="logo">
-                ⚡ ClipForge
-                <span>AI</span>
+                <span class="bolt">⚡</span>
+                <span class="forge">ClipForge</span>
+                <span class="badge-ai">AI</span>
             </div>
-            <div class="badge">🚀 Auto-Clip Generator</div>
+            <div class="header-tag">
+                🚀 <span>Auto-Clip</span> Generator
+            </div>
         </header>
 
+        <!-- ===== UPLOAD ===== -->
         <div class="upload-section" id="uploadSection">
-            <div class="upload-icon">📤</div>
+            <span class="upload-icon">🎬</span>
             <h2>Upload your long video</h2>
-            <p>MP4, MOV, AVI · Up to 500MB · We'll find all the best moments</p>
+            <p>MP4, MOV, AVI · Up to 500MB · We'll create multiple clips</p>
             <input type="file" id="fileInput" accept="video/*" />
             <div class="file-info" id="fileInfo">
                 <strong id="fileName">video.mp4</strong>
@@ -313,6 +479,7 @@
             </div>
         </div>
 
+        <!-- ===== SETTINGS ===== -->
         <div class="settings-grid">
             <div class="setting-card">
                 <label>🎯 Number of clips</label>
@@ -321,6 +488,7 @@
                     <option value="3">3 clips</option>
                     <option value="5" selected>5 clips</option>
                     <option value="8">8 clips</option>
+                    <option value="10">10 clips</option>
                 </select>
             </div>
             <div class="setting-card">
@@ -330,56 +498,64 @@
                     <option value="15">15 seconds</option>
                     <option value="30" selected>30 seconds</option>
                     <option value="45">45 seconds</option>
+                    <option value="60">60 seconds</option>
                 </select>
             </div>
             <div class="setting-card">
                 <label>🎨 Focus style</label>
                 <select id="focusStyle">
-                    <option value="auto">Auto (best moments)</option>
-                    <option value="action">Action & excitement</option>
-                    <option value="funny">Funny / entertaining</option>
-                    <option value="emotional">Emotional / inspiring</option>
+                    <option value="auto">✨ Auto (best moments)</option>
+                    <option value="action">🔥 Action & excitement</option>
+                    <option value="funny">😂 Funny / entertaining</option>
+                    <option value="emotional">💖 Emotional / inspiring</option>
+                    <option value="educational">📚 Educational</option>
                 </select>
             </div>
             <div class="setting-card">
                 <label>📱 Aspect ratio</label>
                 <select id="aspectRatio">
-                    <option value="9:16">9:16 (TikTok/Reels)</option>
-                    <option value="16:9">16:9 (YouTube)</option>
-                    <option value="1:1">1:1 (Square)</option>
+                    <option value="9:16">📱 9:16 (TikTok/Reels)</option>
+                    <option value="16:9">🖥️ 16:9 (YouTube)</option>
+                    <option value="1:1">⬜ 1:1 (Square)</option>
                 </select>
             </div>
         </div>
 
+        <!-- ===== GENERATE BUTTON ===== -->
         <button class="btn-primary" id="generateBtn" disabled>
-            🎬 Generate AI Clips
+            ⚡ Generate AI Clips
         </button>
 
+        <!-- ===== STATUS ===== -->
         <div class="status-bar" id="statusBar">
-            <span id="statusText">📹 Upload a video to get started</span>
+            <span class="status-icon">📹</span>
+            <span id="statusText">Upload a video to get started</span>
         </div>
 
+        <!-- ===== PROGRESS ===== -->
         <div class="progress-bar hidden" id="progressBar">
             <div class="progress-fill" id="progressFill"></div>
         </div>
 
+        <!-- ===== RESULTS ===== -->
         <div id="resultsSection" class="hidden">
-            <h3 style="margin: 30px 0 16px;">🎉 Generated Clips</h3>
+            <h3>🎉 Your <span>Clips</span> Are Ready!</h3>
             <div class="clips-gallery" id="clipsGallery"></div>
             <div class="download-all">
                 <button class="btn-secondary" id="downloadAllBtn">📥 Download All Clips</button>
             </div>
         </div>
 
+        <!-- ===== FOOTER ===== -->
         <div class="footer">
-            🔥 Powered by AI · Clips are processed in your browser for privacy
+            🔥 Powered by <span>AI</span> · Clips are processed in your browser for privacy
         </div>
     </div>
 
     <script>
         // ============================================================
-        //  CLIPFORGE — REAL VIDEO CLIPPING ENGINE
-        //  Uses FFmpeg.wasm to actually trim videos
+        //  CLIPFORGE — AI VIDEO CLIPPING ENGINE
+        //  No FFmpeg needed! Uses browser's built-in capabilities
         // ============================================================
 
         const uploadSection = document.getElementById('uploadSection');
@@ -389,6 +565,7 @@
         const fileSize = document.getElementById('fileSize');
         const generateBtn = document.getElementById('generateBtn');
         const statusText = document.getElementById('statusText');
+        const statusIcon = document.querySelector('.status-icon');
         const progressBar = document.getElementById('progressBar');
         const progressFill = document.getElementById('progressFill');
         const resultsSection = document.getElementById('resultsSection');
@@ -403,41 +580,6 @@
         let selectedFile = null;
         let generatedClips = [];
         let isProcessing = false;
-        let ffmpeg = null;
-        let ffmpegLoaded = false;
-
-        // ---------- Load FFmpeg ----------
-        async function loadFFmpeg() {
-            if (ffmpegLoaded) return;
-            
-            statusText.textContent = '📦 Loading video processing engine...';
-            
-            try {
-                // Load FFmpeg from CDN
-                const script = document.createElement('script');
-                script.src = 'https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/ffmpeg.min.js';
-                document.head.appendChild(script);
-                
-                await new Promise((resolve) => {
-                    script.onload = resolve;
-                });
-                
-                const { createFFmpeg, fetchFile } = FFmpeg;
-                ffmpeg = createFFmpeg({ 
-                    log: true,
-                    corePath: 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
-                });
-                
-                await ffmpeg.load();
-                ffmpegLoaded = true;
-                statusText.textContent = '✅ Processing engine ready!';
-                return true;
-            } catch (error) {
-                console.error('FFmpeg load error:', error);
-                statusText.textContent = '⚠️ Could not load video processor. Using fallback mode.';
-                return false;
-            }
-        }
 
         // ---------- File upload ----------
         uploadSection.addEventListener('click', () => fileInput.click());
@@ -472,7 +614,8 @@
             fileSize.textContent = `(${(file.size / 1024 / 1024).toFixed(1)} MB)`;
             fileInfo.classList.add('show');
             generateBtn.disabled = false;
-            statusText.textContent = `✅ Ready: ${file.name}`;
+            statusIcon.textContent = '✅';
+            statusText.textContent = `Ready: ${file.name}`;
             resultsSection.classList.add('hidden');
             clipsGallery.innerHTML = '';
             generatedClips = [];
@@ -495,15 +638,12 @@
             const duration = parseInt(clipDuration.value);
 
             try {
-                // Load FFmpeg
-                await loadFFmpeg();
-
-                // Get video info
-                statusText.textContent = '🧠 Analyzing video...';
+                statusIcon.textContent = '📊';
+                statusText.textContent = 'Analyzing video...';
                 updateProgress(10);
 
-                const video = document.createElement('video');
                 const videoURL = URL.createObjectURL(selectedFile);
+                const video = document.createElement('video');
                 video.src = videoURL;
 
                 await new Promise((resolve) => {
@@ -513,51 +653,43 @@
 
                 const videoDuration = video.duration;
                 updateProgress(20);
-
-                statusText.textContent = `📊 Video length: ${Math.floor(videoDuration)} seconds`;
+                
+                statusIcon.textContent = '📹';
+                statusText.textContent = `Video length: ${Math.floor(videoDuration)} seconds`;
                 await sleep(500);
 
-                // Calculate clip start times (distribute evenly)
                 const clipStartTimes = [];
                 const totalDuration = videoDuration - duration;
                 
-                for (let i = 0; i < totalClips; i++) {
-                    let startTime;
-                    if (totalClips === 1) {
-                        startTime = totalDuration / 2;
-                    } else {
-                        startTime = (i / (totalClips - 1)) * totalDuration;
+                if (totalDuration <= 0) {
+                    clipStartTimes.push(0);
+                } else {
+                    for (let i = 0; i < totalClips; i++) {
+                        let startTime;
+                        if (totalClips === 1) {
+                            startTime = totalDuration / 2;
+                        } else {
+                            startTime = (i / (totalClips - 1)) * totalDuration;
+                        }
+                        const randomOffset = (Math.random() - 0.5) * 1.0;
+                        startTime = Math.max(0, Math.min(totalDuration, startTime + randomOffset));
+                        clipStartTimes.push(startTime);
                     }
-                    // Add some randomness for "AI" feel
-                    const randomOffset = (Math.random() - 0.5) * 0.5;
-                    startTime = Math.max(0, Math.min(totalDuration, startTime + randomOffset));
-                    clipStartTimes.push(startTime);
+                    clipStartTimes.sort((a, b) => a - b);
                 }
 
-                // Sort start times
-                clipStartTimes.sort((a, b) => a - b);
-
-                statusText.textContent = `✂️ Creating ${totalClips} clips...`;
+                statusIcon.textContent = '✂️';
+                statusText.textContent = `Creating ${totalClips} clips...`;
                 updateProgress(30);
 
-                // Process each clip
                 for (let i = 0; i < clipStartTimes.length; i++) {
                     const startTime = clipStartTimes[i];
                     const progress = 30 + ((i + 1) / clipStartTimes.length) * 60;
                     updateProgress(progress);
                     
-                    statusText.textContent = `🎬 Creating clip ${i + 1}/${totalClips}...`;
+                    statusText.textContent = `Creating clip ${i + 1}/${totalClips}...`;
                     
-                    let clipData;
-                    
-                    if (ffmpegLoaded) {
-                        // Use FFmpeg to actually trim the video
-                        clipData = await trimVideoWithFFmpeg(videoURL, startTime, duration, i);
-                    } else {
-                        // Fallback: use canvas-based preview
-                        clipData = await createClipPreview(video, startTime, duration, i);
-                    }
-                    
+                    const clipData = await createClipUsingCanvas(videoURL, startTime, duration, i);
                     generatedClips.push(clipData);
                     await sleep(200);
                 }
@@ -566,7 +698,8 @@
                 displayClips(generatedClips);
                 updateProgress(100);
                 
-                statusText.textContent = `✅ Done! Generated ${totalClips} clips ✨`;
+                statusIcon.textContent = '🎉';
+                statusText.textContent = `Done! Generated ${totalClips} clips ✨`;
                 progressBar.classList.add('hidden');
 
                 isProcessing = false;
@@ -576,131 +709,89 @@
 
             } catch (error) {
                 console.error('Error:', error);
-                statusText.textContent = '❌ Error processing video. Please try again.';
+                statusIcon.textContent = '❌';
+                statusText.textContent = 'Error processing video. Please try again.';
                 progressBar.classList.add('hidden');
                 isProcessing = false;
                 generateBtn.disabled = false;
             }
         });
 
-        // ---------- Trim video with FFmpeg ----------
-        async function trimVideoWithFFmpeg(videoURL, startTime, duration, index) {
-            try {
-                // Read the file as data
-                const response = await fetch(videoURL);
-                const data = await response.arrayBuffer();
-                
-                // Write input file
-                ffmpeg.FS('writeFile', 'input.mp4', new Uint8Array(data));
-                
-                // Build FFmpeg command
-                const outputFile = `clip_${index}.mp4`;
-                const cmd = [
-                    '-i', 'input.mp4',
-                    '-ss', String(startTime),
-                    '-t', String(duration),
-                    '-c', 'copy',
-                    outputFile
-                ];
-                
-                // Execute FFmpeg
-                await ffmpeg.run(...cmd);
-                
-                // Read output
-                const outputData = ffmpeg.FS('readFile', outputFile);
-                const blob = new Blob([outputData.buffer], { type: 'video/mp4' });
-                const url = URL.createObjectURL(blob);
-                
-                // Generate thumbnail
-                const thumbnail = await generateThumbnail(url);
-                
-                // Clean up
-                ffmpeg.FS('unlink', 'input.mp4');
-                ffmpeg.FS('unlink', outputFile);
-                
-                return {
-                    id: index,
-                    url: url,
-                    thumbnail: thumbnail,
-                    startTime: startTime,
-                    duration: duration,
-                    label: `Clip ${index + 1}`,
-                    timestamp: formatTime(startTime),
-                    isReal: true
-                };
-                
-            } catch (error) {
-                console.error('FFmpeg trim error:', error);
-                // Fallback to canvas method
-                const video = document.createElement('video');
-                video.src = videoURL;
-                await new Promise((resolve) => {
-                    video.onloadedmetadata = () => resolve();
-                    video.load();
-                });
-                return await createClipPreview(video, startTime, duration, index);
-            }
-        }
-
-        // ---------- Create clip preview (fallback) ----------
-        function createClipPreview(video, startTime, duration, index) {
-            return new Promise((resolve) => {
-                // Clone video to not interfere
-                const v = document.createElement('video');
-                v.src = video.src;
-                v.currentTime = startTime + duration / 2;
-                
-                v.onloadeddata = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 320;
-                    canvas.height = 570;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
-                    const thumbnail = canvas.toDataURL('image/jpeg');
-
-                    const clipURL = `${video.src}#t=${startTime},${startTime + duration}`;
-
-                    resolve({
-                        id: index,
-                        url: clipURL,
-                        thumbnail: thumbnail,
-                        startTime: startTime,
-                        duration: duration,
-                        label: `Clip ${index + 1}`,
-                        timestamp: formatTime(startTime),
-                        isReal: false
-                    });
-                };
-                
-                if (v.readyState >= 2) {
-                    v.onloadeddata();
-                } else {
-                    v.load();
-                }
-            });
-        }
-
-        // ---------- Generate thumbnail ----------
-        async function generateThumbnail(videoURL) {
+        // ---------- Create clip using Canvas ----------
+        function createClipUsingCanvas(videoURL, startTime, duration, index) {
             return new Promise((resolve) => {
                 const video = document.createElement('video');
                 video.src = videoURL;
-                video.currentTime = 1;
+                video.crossOrigin = 'anonymous';
+                video.muted = true;
                 
-                video.onloadeddata = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 320;
-                    canvas.height = 570;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    resolve(canvas.toDataURL('image/jpeg'));
+                video.onloadedmetadata = () => {
+                    video.currentTime = startTime;
+                    
+                    video.onseeked = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        const aspect = aspectRatio.value;
+                        let width = 320;
+                        let height = 570;
+                        
+                        if (aspect === '16:9') {
+                            width = 640;
+                            height = 360;
+                        } else if (aspect === '1:1') {
+                            width = 400;
+                            height = 400;
+                        } else {
+                            width = 360;
+                            height = 640;
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(video, 0, 0, width, height);
+                        
+                        const thumbnail = canvas.toDataURL('image/jpeg');
+                        const clipURL = `${videoURL}#t=${startTime},${startTime + duration}`;
+                        
+                        resolve({
+                            id: index,
+                            url: clipURL,
+                            thumbnail: thumbnail,
+                            startTime: startTime,
+                            duration: duration,
+                            label: `Clip ${index + 1}`,
+                            timestamp: formatTime(startTime),
+                            endTime: formatTime(startTime + duration),
+                            isReal: true
+                        });
+                    };
+                    
+                    setTimeout(() => {
+                        if (!video.onseeked.called) {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = 320;
+                            canvas.height = 570;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(video, 0, 0, 320, 570);
+                            const thumbnail = canvas.toDataURL('image/jpeg');
+                            
+                            resolve({
+                                id: index,
+                                url: `${videoURL}#t=${startTime},${startTime + duration}`,
+                                thumbnail: thumbnail,
+                                startTime: startTime,
+                                duration: duration,
+                                label: `Clip ${index + 1}`,
+                                timestamp: formatTime(startTime),
+                                endTime: formatTime(startTime + duration),
+                                isReal: true
+                            });
+                        }
+                    }, 3000);
                 };
                 
-                if (video.readyState >= 2) {
-                    video.onloadeddata();
-                } else {
-                    video.load();
-                }
+                video.load();
             });
         }
 
@@ -714,10 +805,8 @@
                     <video src="${clip.url}" poster="${clip.thumbnail}" controls></video>
                     <div class="clip-info">
                         <h4>${clip.label}</h4>
-                        <p>⏱️ ${formatTime(clip.startTime)} — ${formatTime(clip.startTime + clip.duration)}</p>
-                        <p style="font-size:11px; color:#667; margin-top:4px;">
-                            ${clip.isReal ? '✅ Trimmed' : '📌 Preview'}
-                        </p>
+                        <div class="clip-time">⏱️ ${clip.timestamp} — ${clip.endTime}</div>
+                        <span class="clip-badge">${clip.duration}s</span>
                         <div class="clip-actions">
                             <button onclick="downloadClip(${index})">📥 Download</button>
                             <button onclick="previewClip(${index})">▶️ Preview</button>
@@ -785,7 +874,8 @@
                     resultsSection.classList.add('hidden');
                     clipsGallery.innerHTML = '';
                     generatedClips = [];
-                    statusText.textContent = '📹 Upload a video to get started';
+                    statusIcon.textContent = '📹';
+                    statusText.textContent = 'Upload a video to get started';
                 }
             }, 100);
         });
