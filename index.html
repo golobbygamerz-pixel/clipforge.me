@@ -305,7 +305,7 @@
         <div class="upload-section" id="uploadSection">
             <div class="upload-icon">📤</div>
             <h2>Upload your long video</h2>
-            <p>MP4, MOV, AVI · Up to 2GB · We'll find all the best moments</p>
+            <p>MP4, MOV, AVI · Up to 500MB · We'll find all the best moments</p>
             <input type="file" id="fileInput" accept="video/*" />
             <div class="file-info" id="fileInfo">
                 <strong id="fileName">video.mp4</strong>
@@ -317,19 +317,19 @@
             <div class="setting-card">
                 <label>🎯 Number of clips</label>
                 <select id="numClips">
+                    <option value="2">2 clips</option>
                     <option value="3">3 clips</option>
                     <option value="5" selected>5 clips</option>
                     <option value="8">8 clips</option>
-                    <option value="10">10 clips</option>
                 </select>
             </div>
             <div class="setting-card">
                 <label>⏱️ Clip duration</label>
                 <select id="clipDuration">
+                    <option value="10">10 seconds</option>
                     <option value="15">15 seconds</option>
                     <option value="30" selected>30 seconds</option>
                     <option value="45">45 seconds</option>
-                    <option value="60">60 seconds</option>
                 </select>
             </div>
             <div class="setting-card">
@@ -339,7 +339,6 @@
                     <option value="action">Action & excitement</option>
                     <option value="funny">Funny / entertaining</option>
                     <option value="emotional">Emotional / inspiring</option>
-                    <option value="educational">Educational</option>
                 </select>
             </div>
             <div class="setting-card">
@@ -378,6 +377,11 @@
     </div>
 
     <script>
+        // ============================================================
+        //  CLIPFORGE — REAL VIDEO CLIPPING ENGINE
+        //  Uses FFmpeg.wasm to actually trim videos
+        // ============================================================
+
         const uploadSection = document.getElementById('uploadSection');
         const fileInput = document.getElementById('fileInput');
         const fileInfo = document.getElementById('fileInfo');
@@ -399,7 +403,43 @@
         let selectedFile = null;
         let generatedClips = [];
         let isProcessing = false;
+        let ffmpeg = null;
+        let ffmpegLoaded = false;
 
+        // ---------- Load FFmpeg ----------
+        async function loadFFmpeg() {
+            if (ffmpegLoaded) return;
+            
+            statusText.textContent = '📦 Loading video processing engine...';
+            
+            try {
+                // Load FFmpeg from CDN
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/ffmpeg.min.js';
+                document.head.appendChild(script);
+                
+                await new Promise((resolve) => {
+                    script.onload = resolve;
+                });
+                
+                const { createFFmpeg, fetchFile } = FFmpeg;
+                ffmpeg = createFFmpeg({ 
+                    log: true,
+                    corePath: 'https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
+                });
+                
+                await ffmpeg.load();
+                ffmpegLoaded = true;
+                statusText.textContent = '✅ Processing engine ready!';
+                return true;
+            } catch (error) {
+                console.error('FFmpeg load error:', error);
+                statusText.textContent = '⚠️ Could not load video processor. Using fallback mode.';
+                return false;
+            }
+        }
+
+        // ---------- File upload ----------
         uploadSection.addEventListener('click', () => fileInput.click());
 
         uploadSection.addEventListener('dragover', (e) => {
@@ -438,6 +478,7 @@
             generatedClips = [];
         }
 
+        // ---------- Generate clips ----------
         generateBtn.addEventListener('click', async () => {
             if (!selectedFile || isProcessing) return;
 
@@ -453,76 +494,171 @@
             const totalClips = parseInt(numClips.value);
             const duration = parseInt(clipDuration.value);
 
-            statusText.textContent = '🧠 AI is analyzing your video...';
-            updateProgress(10);
+            try {
+                // Load FFmpeg
+                await loadFFmpeg();
 
-            await sleep(1000);
-            statusText.textContent = '🔍 Detecting key moments...';
-            updateProgress(30);
+                // Get video info
+                statusText.textContent = '🧠 Analyzing video...';
+                updateProgress(10);
 
-            await sleep(1500);
-            statusText.textContent = '✂️ Extracting highlight clips...';
-            updateProgress(50);
+                const video = document.createElement('video');
+                const videoURL = URL.createObjectURL(selectedFile);
+                video.src = videoURL;
 
-            await sleep(2000);
-            statusText.textContent = '🎨 Applying AI enhancements...';
-            updateProgress(70);
+                await new Promise((resolve) => {
+                    video.onloadedmetadata = () => resolve();
+                    video.load();
+                });
 
-            const videoURL = URL.createObjectURL(selectedFile);
-            const video = document.createElement('video');
-            video.src = videoURL;
+                const videoDuration = video.duration;
+                updateProgress(20);
 
-            await new Promise((resolve) => {
-                video.onloadedmetadata = () => {
-                    resolve();
-                };
-                video.load();
-            });
+                statusText.textContent = `📊 Video length: ${Math.floor(videoDuration)} seconds`;
+                await sleep(500);
 
-            const videoDuration = video.duration;
-            const clipInterval = Math.min(videoDuration / totalClips, duration + 5);
+                // Calculate clip start times (distribute evenly)
+                const clipStartTimes = [];
+                const totalDuration = videoDuration - duration;
+                
+                for (let i = 0; i < totalClips; i++) {
+                    let startTime;
+                    if (totalClips === 1) {
+                        startTime = totalDuration / 2;
+                    } else {
+                        startTime = (i / (totalClips - 1)) * totalDuration;
+                    }
+                    // Add some randomness for "AI" feel
+                    const randomOffset = (Math.random() - 0.5) * 0.5;
+                    startTime = Math.max(0, Math.min(totalDuration, startTime + randomOffset));
+                    clipStartTimes.push(startTime);
+                }
 
-            statusText.textContent = `📦 Creating ${totalClips} clips...`;
-            updateProgress(85);
+                // Sort start times
+                clipStartTimes.sort((a, b) => a - b);
 
-            for (let i = 0; i < totalClips; i++) {
-                const startTime = Math.min(i * clipInterval, videoDuration - duration);
-                const clipData = await createClipPreview(videoURL, startTime, duration, i);
-                generatedClips.push(clipData);
+                statusText.textContent = `✂️ Creating ${totalClips} clips...`;
+                updateProgress(30);
 
-                const progress = 85 + ((i + 1) / totalClips) * 15;
-                updateProgress(progress);
-                statusText.textContent = `📦 Creating clip ${i + 1}/${totalClips}...`;
-                await sleep(300);
+                // Process each clip
+                for (let i = 0; i < clipStartTimes.length; i++) {
+                    const startTime = clipStartTimes[i];
+                    const progress = 30 + ((i + 1) / clipStartTimes.length) * 60;
+                    updateProgress(progress);
+                    
+                    statusText.textContent = `🎬 Creating clip ${i + 1}/${totalClips}...`;
+                    
+                    let clipData;
+                    
+                    if (ffmpegLoaded) {
+                        // Use FFmpeg to actually trim the video
+                        clipData = await trimVideoWithFFmpeg(videoURL, startTime, duration, i);
+                    } else {
+                        // Fallback: use canvas-based preview
+                        clipData = await createClipPreview(video, startTime, duration, i);
+                    }
+                    
+                    generatedClips.push(clipData);
+                    await sleep(200);
+                }
+
+                updateProgress(95);
+                displayClips(generatedClips);
+                updateProgress(100);
+                
+                statusText.textContent = `✅ Done! Generated ${totalClips} clips ✨`;
+                progressBar.classList.add('hidden');
+
+                isProcessing = false;
+                generateBtn.disabled = false;
+                resultsSection.classList.remove('hidden');
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            } catch (error) {
+                console.error('Error:', error);
+                statusText.textContent = '❌ Error processing video. Please try again.';
+                progressBar.classList.add('hidden');
+                isProcessing = false;
+                generateBtn.disabled = false;
             }
-
-            displayClips(generatedClips);
-            updateProgress(100);
-            statusText.textContent = `✅ Done! Generated ${totalClips} clips ✨`;
-            progressBar.classList.add('hidden');
-
-            isProcessing = false;
-            generateBtn.disabled = false;
-            resultsSection.classList.remove('hidden');
-
-            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
 
-        function createClipPreview(videoURL, startTime, duration, index) {
-            return new Promise((resolve) => {
+        // ---------- Trim video with FFmpeg ----------
+        async function trimVideoWithFFmpeg(videoURL, startTime, duration, index) {
+            try {
+                // Read the file as data
+                const response = await fetch(videoURL);
+                const data = await response.arrayBuffer();
+                
+                // Write input file
+                ffmpeg.FS('writeFile', 'input.mp4', new Uint8Array(data));
+                
+                // Build FFmpeg command
+                const outputFile = `clip_${index}.mp4`;
+                const cmd = [
+                    '-i', 'input.mp4',
+                    '-ss', String(startTime),
+                    '-t', String(duration),
+                    '-c', 'copy',
+                    outputFile
+                ];
+                
+                // Execute FFmpeg
+                await ffmpeg.run(...cmd);
+                
+                // Read output
+                const outputData = ffmpeg.FS('readFile', outputFile);
+                const blob = new Blob([outputData.buffer], { type: 'video/mp4' });
+                const url = URL.createObjectURL(blob);
+                
+                // Generate thumbnail
+                const thumbnail = await generateThumbnail(url);
+                
+                // Clean up
+                ffmpeg.FS('unlink', 'input.mp4');
+                ffmpeg.FS('unlink', outputFile);
+                
+                return {
+                    id: index,
+                    url: url,
+                    thumbnail: thumbnail,
+                    startTime: startTime,
+                    duration: duration,
+                    label: `Clip ${index + 1}`,
+                    timestamp: formatTime(startTime),
+                    isReal: true
+                };
+                
+            } catch (error) {
+                console.error('FFmpeg trim error:', error);
+                // Fallback to canvas method
                 const video = document.createElement('video');
                 video.src = videoURL;
-                video.currentTime = startTime + duration / 2;
+                await new Promise((resolve) => {
+                    video.onloadedmetadata = () => resolve();
+                    video.load();
+                });
+                return await createClipPreview(video, startTime, duration, index);
+            }
+        }
 
-                video.onloadeddata = () => {
+        // ---------- Create clip preview (fallback) ----------
+        function createClipPreview(video, startTime, duration, index) {
+            return new Promise((resolve) => {
+                // Clone video to not interfere
+                const v = document.createElement('video');
+                v.src = video.src;
+                v.currentTime = startTime + duration / 2;
+                
+                v.onloadeddata = () => {
                     const canvas = document.createElement('canvas');
                     canvas.width = 320;
                     canvas.height = 570;
                     const ctx = canvas.getContext('2d');
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
                     const thumbnail = canvas.toDataURL('image/jpeg');
 
-                    const clipURL = `${videoURL}#t=${startTime},${startTime + duration}`;
+                    const clipURL = `${video.src}#t=${startTime},${startTime + duration}`;
 
                     resolve({
                         id: index,
@@ -531,10 +667,35 @@
                         startTime: startTime,
                         duration: duration,
                         label: `Clip ${index + 1}`,
-                        timestamp: formatTime(startTime)
+                        timestamp: formatTime(startTime),
+                        isReal: false
                     });
                 };
+                
+                if (v.readyState >= 2) {
+                    v.onloadeddata();
+                } else {
+                    v.load();
+                }
+            });
+        }
 
+        // ---------- Generate thumbnail ----------
+        async function generateThumbnail(videoURL) {
+            return new Promise((resolve) => {
+                const video = document.createElement('video');
+                video.src = videoURL;
+                video.currentTime = 1;
+                
+                video.onloadeddata = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 320;
+                    canvas.height = 570;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    resolve(canvas.toDataURL('image/jpeg'));
+                };
+                
                 if (video.readyState >= 2) {
                     video.onloadeddata();
                 } else {
@@ -543,6 +704,7 @@
             });
         }
 
+        // ---------- Display clips ----------
         function displayClips(clips) {
             clipsGallery.innerHTML = '';
             clips.forEach((clip, index) => {
@@ -553,6 +715,9 @@
                     <div class="clip-info">
                         <h4>${clip.label}</h4>
                         <p>⏱️ ${formatTime(clip.startTime)} — ${formatTime(clip.startTime + clip.duration)}</p>
+                        <p style="font-size:11px; color:#667; margin-top:4px;">
+                            ${clip.isReal ? '✅ Trimmed' : '📌 Preview'}
+                        </p>
                         <div class="clip-actions">
                             <button onclick="downloadClip(${index})">📥 Download</button>
                             <button onclick="previewClip(${index})">▶️ Preview</button>
@@ -563,6 +728,7 @@
             });
         }
 
+        // ---------- Download functions ----------
         window.downloadClip = function(index) {
             const clip = generatedClips[index];
             if (!clip) return;
@@ -595,6 +761,7 @@
             });
         });
 
+        // ---------- Utilities ----------
         function updateProgress(value) {
             progressFill.style.width = `${Math.min(value, 100)}%`;
         }
