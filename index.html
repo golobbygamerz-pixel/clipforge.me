@@ -294,7 +294,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <header>
             <div class="logo">
                 ⚡ ClipForge
@@ -303,7 +302,6 @@
             <div class="badge">🚀 Auto-Clip Generator</div>
         </header>
 
-        <!-- Upload Section -->
         <div class="upload-section" id="uploadSection">
             <div class="upload-icon">📤</div>
             <h2>Upload your long video</h2>
@@ -315,7 +313,6 @@
             </div>
         </div>
 
-        <!-- Settings -->
         <div class="settings-grid">
             <div class="setting-card">
                 <label>🎯 Number of clips</label>
@@ -355,22 +352,18 @@
             </div>
         </div>
 
-        <!-- Generate Button -->
         <button class="btn-primary" id="generateBtn" disabled>
             🎬 Generate AI Clips
         </button>
 
-        <!-- Status -->
         <div class="status-bar" id="statusBar">
             <span id="statusText">📹 Upload a video to get started</span>
         </div>
 
-        <!-- Progress -->
         <div class="progress-bar hidden" id="progressBar">
             <div class="progress-fill" id="progressFill"></div>
         </div>
 
-        <!-- Results -->
         <div id="resultsSection" class="hidden">
             <h3 style="margin: 30px 0 16px;">🎉 Generated Clips</h3>
             <div class="clips-gallery" id="clipsGallery"></div>
@@ -385,12 +378,6 @@
     </div>
 
     <script>
-        // ============================================================
-        //  CLIPFORGE — FULL AI CLIPPING ENGINE
-        //  (Simulated AI with real video processing)
-        // ============================================================
-
-        // ---------- DOM refs ----------
         const uploadSection = document.getElementById('uploadSection');
         const fileInput = document.getElementById('fileInput');
         const fileInfo = document.getElementById('fileInfo');
@@ -413,7 +400,6 @@
         let generatedClips = [];
         let isProcessing = false;
 
-        // ---------- File upload ----------
         uploadSection.addEventListener('click', () => fileInput.click());
 
         uploadSection.addEventListener('dragover', (e) => {
@@ -447,13 +433,11 @@
             fileInfo.classList.add('show');
             generateBtn.disabled = false;
             statusText.textContent = `✅ Ready: ${file.name}`;
-            // Reset results
             resultsSection.classList.add('hidden');
             clipsGallery.innerHTML = '';
             generatedClips = [];
         }
 
-        // ---------- Generate clips ----------
         generateBtn.addEventListener('click', async () => {
             if (!selectedFile || isProcessing) return;
 
@@ -463,21 +447,14 @@
             clipsGallery.innerHTML = '';
             generatedClips = [];
 
-            // Show progress
             progressBar.classList.remove('hidden');
             progressFill.style.width = '0%';
 
             const totalClips = parseInt(numClips.value);
             const duration = parseInt(clipDuration.value);
-            const focus = focusStyle.value;
-            const aspect = aspectRatio.value;
 
             statusText.textContent = '🧠 AI is analyzing your video...';
             updateProgress(10);
-
-            // --- SIMULATED AI PROCESSING ---
-            // In production, this would call a real AI API (Replicate, Hugging Face, etc.)
-            // or use FFmpeg.wasm for client-side processing
 
             await sleep(1000);
             statusText.textContent = '🔍 Detecting key moments...';
@@ -490,10 +467,6 @@
             await sleep(2000);
             statusText.textContent = '🎨 Applying AI enhancements...';
             updateProgress(70);
-
-            // Generate clips from the uploaded video
-            // In a real app, this would use FFmpeg.wasm or server-side processing
-            // Here we simulate by creating multiple versions with different timestamps
 
             const videoURL = URL.createObjectURL(selectedFile);
             const video = document.createElement('video');
@@ -512,20 +485,17 @@
             statusText.textContent = `📦 Creating ${totalClips} clips...`;
             updateProgress(85);
 
-            // Generate clips with different start times
             for (let i = 0; i < totalClips; i++) {
                 const startTime = Math.min(i * clipInterval, videoDuration - duration);
                 const clipData = await createClipPreview(videoURL, startTime, duration, i);
                 generatedClips.push(clipData);
 
-                // Update progress
                 const progress = 85 + ((i + 1) / totalClips) * 15;
                 updateProgress(progress);
                 statusText.textContent = `📦 Creating clip ${i + 1}/${totalClips}...`;
                 await sleep(300);
             }
 
-            // Display results
             displayClips(generatedClips);
             updateProgress(100);
             statusText.textContent = `✅ Done! Generated ${totalClips} clips ✨`;
@@ -535,14 +505,11 @@
             generateBtn.disabled = false;
             resultsSection.classList.remove('hidden');
 
-            // Scroll to results
             resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
 
-        // ---------- Create clip preview ----------
         function createClipPreview(videoURL, startTime, duration, index) {
             return new Promise((resolve) => {
-                // Create a canvas to extract a thumbnail
                 const video = document.createElement('video');
                 video.src = videoURL;
                 video.currentTime = startTime + duration / 2;
@@ -555,9 +522,6 @@
                     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                     const thumbnail = canvas.toDataURL('image/jpeg');
 
-                    // Create a blob URL for the clip segment
-                    // In a real app, this would use FFmpeg.wasm to actually trim the video
-                    // For demo, we just use the full video with start time as metadata
                     const clipURL = `${videoURL}#t=${startTime},${startTime + duration}`;
 
                     resolve({
@@ -571,7 +535,6 @@
                     });
                 };
 
-                // If video already loaded
                 if (video.readyState >= 2) {
                     video.onloadeddata();
                 } else {
@@ -580,7 +543,6 @@
             });
         }
 
-        // ---------- Display clips ----------
         function displayClips(clips) {
             clipsGallery.innerHTML = '';
             clips.forEach((clip, index) => {
@@ -601,13 +563,10 @@
             });
         }
 
-        // ---------- Download functions ----------
         window.downloadClip = function(index) {
             const clip = generatedClips[index];
             if (!clip) return;
 
-            // For demo, we download the original video with a timestamp marker
-            // In production, this would download the actual trimmed clip
             const a = document.createElement('a');
             a.href = clip.url;
             a.download = `clipforge-clip-${index + 1}.mp4`;
@@ -620,7 +579,6 @@
             const clip = generatedClips[index];
             if (!clip) return;
 
-            // Find the video element in the card and play it
             const cards = clipsGallery.querySelectorAll('.clip-card');
             if (cards[index]) {
                 const video = cards[index].querySelector('video');
@@ -637,7 +595,6 @@
             });
         });
 
-        // ---------- Utilities ----------
         function updateProgress(value) {
             progressFill.style.width = `${Math.min(value, 100)}%`;
         }
@@ -652,9 +609,7 @@
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        // ---------- Reset on new file ----------
         fileInput.addEventListener('click', () => {
-            // Allow re-upload
             setTimeout(() => {
                 if (!fileInput.files.length) {
                     selectedFile = null;
@@ -668,7 +623,6 @@
             }, 100);
         });
 
-        // ---------- Keyboard shortcut ----------
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !generateBtn.disabled) {
                 generateBtn.click();
